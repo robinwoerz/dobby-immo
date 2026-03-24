@@ -30,4 +30,5 @@ repos:
           - pydantic-settings
           - python-telegram-bot
           - pytest
+          - openai
         args: [--config-file=pyproject.toml]

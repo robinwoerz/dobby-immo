@@ -12,23 +12,33 @@ def test_settings_loads_from_env(monkeypatch):
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "fake-token")
     monkeypatch.setenv("TELEGRAM_BOT_NAME", "test_bot")
     monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "[111,222]")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-fake")
     settings = Settings(_env_file=None)
     assert settings.telegram_bot_token == "fake-token"  # noqa: S105
     assert settings.telegram_bot_name == "test_bot"
     assert settings.telegram_allowed_user_ids == [111, 222]
+    assert settings.openai_api_key == "sk-fake"
 
 
 @pytest.mark.asyncio
 async def test_handle_message_replies():
+    agent = AsyncMock()
+    agent.reply.return_value = "Dobby hilft!"
+
     message = MagicMock()
     message.text = "Hi there"
+    message.chat_id = 42
     message.reply_text = AsyncMock()
 
     update = MagicMock()
     update.message = message
 
-    await handle_message(update, MagicMock())
-    message.reply_text.assert_called_once_with("Hallo Robin")
+    context = MagicMock()
+    context.bot_data = {"agent": agent}
+
+    await handle_message(update, context)
+    agent.reply.assert_called_once_with(42, "Hi there")
+    message.reply_text.assert_called_once_with("Dobby hilft!")
 
 
 @pytest.mark.asyncio

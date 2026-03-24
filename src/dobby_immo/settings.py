@@ -11,3 +11,4 @@ class Settings(BaseSettings):
     telegram_bot_token: str
     telegram_bot_name: str
     telegram_allowed_user_ids: list[int] = []
+    openai_api_key: str

@@ -8,6 +8,7 @@ license = { text = "MIT" }
 dependencies = [
     "python-telegram-bot[ext]>=21.0",
     "pydantic-settings>=2.0",
+    "openai>=2.29.0",
 ]
 
 [project.scripts]

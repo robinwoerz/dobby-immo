@@ -13,7 +13,11 @@ def main() -> None:
         level=logging.INFO,
     )
     settings = Settings()
-    app = create_app(settings.telegram_bot_token, settings.telegram_allowed_user_ids)
+    app = create_app(
+        settings.telegram_bot_token,
+        settings.telegram_allowed_user_ids,
+        settings.openai_api_key,
+    )
     app.run_polling()
 
 
