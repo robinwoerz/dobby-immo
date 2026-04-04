@@ -17,6 +17,10 @@ make install
 uv run pre-commit install
 ```
 
+## Long-term Memory
+
+Dobby stores the apartment search profile in `.dobby/apartment_profile.md`. This file is created automatically on first use and is gitignored.
+
 ## Development
 
 ```bash
