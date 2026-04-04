@@ -18,3 +18,4 @@ class Settings(BaseSettings):
     openai_tts_voice: str = "fable"
     openai_tts_speed: float = 1.2
     profile_path: str = ".dobby/apartment_profile.md"
+    chat_history_max_messages: int = 30

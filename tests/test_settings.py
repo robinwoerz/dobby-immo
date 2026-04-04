@@ -18,6 +18,7 @@ def test_settings_loads_from_env(monkeypatch):
     assert settings.openai_tts_voice == "fable"
     assert settings.openai_tts_speed == 1.2
     assert settings.profile_path == ".dobby/apartment_profile.md"
+    assert settings.chat_history_max_messages == 30
 
 
 def test_settings_transcription_overrides(monkeypatch):

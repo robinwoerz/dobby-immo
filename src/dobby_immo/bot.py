@@ -33,6 +33,7 @@ def create_app(settings: Settings) -> Application:  # type: ignore[type-arg]
             api_key=settings.openai_api_key,
             model=settings.openai_chat_model,
             profile_path=Path(settings.profile_path),
+            max_history=settings.chat_history_max_messages,
         ),
         transcription=OpenAITranscriptionService(
             api_key=settings.openai_api_key,
