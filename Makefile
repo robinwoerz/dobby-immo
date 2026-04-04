@@ -19,7 +19,7 @@ test: ## Run tests with pytest
 	uv run pytest
 
 typecheck: ## Run mypy type checking
-	uv run mypy src
+	uv run mypy src tests
 
 check: lint typecheck test ## Run all checks (lint + typecheck + test)
 

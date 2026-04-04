@@ -128,3 +128,19 @@ def speak_reply(text: str) -> None:
     Args:
         text: The text to speak aloud.
     """
+
+
+@agent_tool
+def read_apartment_profile() -> None:
+    """Read the current apartment search profile with all stored preferences."""
+
+
+@agent_tool
+def update_apartment_profile(content: str) -> None:
+    """Update the apartment search profile. Expects the complete profile as markdown.
+
+    Always read the current profile first, then send the full updated version.
+
+    Args:
+        content: The full updated profile in markdown format.
+    """

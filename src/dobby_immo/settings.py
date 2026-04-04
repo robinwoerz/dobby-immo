@@ -17,3 +17,4 @@ class Settings(BaseSettings):
     openai_tts_model: str = "gpt-4o-mini-tts"
     openai_tts_voice: str = "fable"
     openai_tts_speed: float = 1.2
+    profile_path: str = ".dobby/apartment_profile.md"

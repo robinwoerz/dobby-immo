@@ -1,6 +1,7 @@
 """Telegram bot application setup."""
 
 import logging
+from pathlib import Path
 
 from telegram.ext import Application, MessageHandler, filters
 
@@ -24,7 +25,11 @@ def create_app(settings: Settings) -> Application:  # type: ignore[type-arg]
     app.add_handler(MessageHandler(filters.VOICE & user_filter, handle_voice))
 
     app.bot_data[SERVICES_KEY] = Services(
-        agent=DobbyAgent(api_key=settings.openai_api_key, model=settings.openai_chat_model),
+        agent=DobbyAgent(
+            api_key=settings.openai_api_key,
+            model=settings.openai_chat_model,
+            profile_path=Path(settings.profile_path),
+        ),
         transcription=OpenAITranscriptionService(
             api_key=settings.openai_api_key,
             model=settings.openai_transcription_model,
