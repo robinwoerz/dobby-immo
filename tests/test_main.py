@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from openai import OpenAIError
 
 from dobby_immo.handlers import handle_message, send_periodic_message
 from dobby_immo.settings import Settings
@@ -21,6 +22,8 @@ def test_settings_loads_from_env(monkeypatch):
     assert settings.openai_api_key == "sk-fake"
     assert settings.openai_transcription_model == "gpt-4o-mini-transcribe"
     assert settings.openai_transcription_prompt is None
+    assert settings.openai_tts_model == "gpt-4o-mini-tts"
+    assert settings.openai_tts_voice == "fable"
 
 
 def test_settings_transcription_overrides(monkeypatch):
@@ -85,6 +88,9 @@ async def test_handle_voice_transcribes_and_replies():
     transcription = AsyncMock()
     transcription.transcribe.return_value = "Was kostet die Wohnung?"
 
+    speech = AsyncMock()
+    speech.synthesize.return_value = b"fake-opus"
+
     tg_file = MagicMock()
     tg_file.file_path = "voice/file_1.oga"
     tg_file.download_as_bytearray = AsyncMock(return_value=bytearray(b"fake-ogg"))
@@ -95,12 +101,13 @@ async def test_handle_voice_transcribes_and_replies():
     message.voice.file_size = 1024
     message.chat_id = 7
     message.reply_text = AsyncMock()
+    message.reply_voice = AsyncMock()
 
     update = MagicMock()
     update.message = message
 
     context = MagicMock()
-    context.bot_data = {"agent": agent, "transcription": transcription}
+    context.bot_data = {"agent": agent, "transcription": transcription, "speech": speech}
     context.bot.get_file = AsyncMock(return_value=tg_file)
 
     await handle_voice(update, context)
@@ -110,7 +117,9 @@ async def test_handle_voice_transcribes_and_replies():
     assert args[0] == b"fake-ogg"
     assert args[1] == "file_1.oga"
     agent.reply.assert_called_once_with(7, "Was kostet die Wohnung?")
-    message.reply_text.assert_called_once_with("Dobby antwortet!")
+    speech.synthesize.assert_called_once_with("Dobby antwortet!")
+    message.reply_voice.assert_called_once_with(voice=b"fake-opus")
+    message.reply_text.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -120,7 +129,7 @@ async def test_handle_voice_skips_when_no_voice():
     update.message.voice = None
 
     context = MagicMock()
-    context.bot_data = {"agent": AsyncMock(), "transcription": AsyncMock()}
+    context.bot_data = {"agent": AsyncMock(), "transcription": AsyncMock(), "speech": AsyncMock()}
 
     await handle_voice(update, context)
     context.bot.get_file.assert_not_called()
@@ -138,7 +147,7 @@ async def test_handle_voice_rejects_oversized_file():
     update.message = message
 
     context = MagicMock()
-    context.bot_data = {"agent": AsyncMock(), "transcription": AsyncMock()}
+    context.bot_data = {"agent": AsyncMock(), "transcription": AsyncMock(), "speech": AsyncMock()}
 
     await handle_voice(update, context)
     message.reply_text.assert_called_once()
@@ -166,9 +175,47 @@ async def test_handle_voice_empty_transcript():
     update.message = message
 
     context = MagicMock()
-    context.bot_data = {"agent": agent, "transcription": transcription}
+    context.bot_data = {"agent": agent, "transcription": transcription, "speech": AsyncMock()}
     context.bot.get_file = AsyncMock(return_value=tg_file)
 
     await handle_voice(update, context)
     agent.reply.assert_not_called()
     message.reply_text.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_voice_tts_fallback_to_text():
+    """When TTS fails, the handler falls back to sending the reply as text."""
+    agent = AsyncMock()
+    agent.reply.return_value = "Dobby hilft trotzdem!"
+
+    transcription = AsyncMock()
+    transcription.transcribe.return_value = "Hallo Dobby"
+
+    speech = AsyncMock()
+    speech.synthesize.side_effect = OpenAIError("TTS down")
+
+    tg_file = MagicMock()
+    tg_file.file_path = "voice/x.oga"
+    tg_file.download_as_bytearray = AsyncMock(return_value=bytearray(b"ogg"))
+
+    message = MagicMock()
+    message.voice = MagicMock()
+    message.voice.file_id = "fid"
+    message.voice.file_size = 100
+    message.chat_id = 9
+    message.reply_text = AsyncMock()
+    message.reply_voice = AsyncMock()
+
+    update = MagicMock()
+    update.message = message
+
+    context = MagicMock()
+    context.bot_data = {"agent": agent, "transcription": transcription, "speech": speech}
+    context.bot.get_file = AsyncMock(return_value=tg_file)
+
+    await handle_voice(update, context)
+
+    speech.synthesize.assert_called_once_with("Dobby hilft trotzdem!")
+    message.reply_voice.assert_not_called()
+    message.reply_text.assert_called_once_with("Dobby hilft trotzdem!")

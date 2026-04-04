@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from telegram.ext import ContextTypes
 
     from dobby_immo.agent import DobbyAgent
+    from dobby_immo.voice.speech import OpenAISpeechRepository
     from dobby_immo.voice.transcription import OpenAITranscriptionRepository
 
 logger = logging.getLogger(__name__)
@@ -108,4 +109,11 @@ async def handle_voice(
 
     logger.info("Voice transcript for chat %s: %s", chat_id, text[:500])
     reply = await agent.reply(chat_id, text)
-    await update.message.reply_text(reply)
+
+    speech: OpenAISpeechRepository = context.bot_data["speech"]
+    try:
+        audio_reply = await speech.synthesize(reply)
+        await update.message.reply_voice(voice=audio_reply)
+    except OpenAIError:
+        logger.exception("TTS failed for chat %s; falling back to text", chat_id)
+        await update.message.reply_text(reply)

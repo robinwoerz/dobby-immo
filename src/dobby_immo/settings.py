@@ -14,3 +14,6 @@ class Settings(BaseSettings):
     openai_api_key: str
     openai_transcription_model: str = "gpt-4o-mini-transcribe"
     openai_transcription_prompt: str | None = None
+    openai_tts_model: str = "gpt-4o-mini-tts"
+    openai_tts_voice: str = "fable"
+    openai_tts_speed: float = 1.2
