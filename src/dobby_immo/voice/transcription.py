@@ -26,7 +26,7 @@ def _is_unsupported_audio_format(exc: BadRequestError) -> bool:
     return False
 
 
-class OpenAITranscriptionRepository:
+class OpenAITranscriptionService:
     """Transcribe voice audio via OpenAI ``/v1/audio/transcriptions``."""
 
     def __init__(
@@ -75,18 +75,14 @@ class OpenAITranscriptionRepository:
         return text.strip()
 
     async def _transcribe_bytes(self, audio: bytes, filename: str) -> str:
-        buffer = io.BytesIO(audio)
-        file_arg = (filename, buffer)
+        file_arg = (filename, io.BytesIO(audio))
         if self._prompt:
             result = await self._client.audio.transcriptions.create(
-                file=file_arg,
-                model=self._model,
-                prompt=self._prompt,
+                file=file_arg, model=self._model, prompt=self._prompt
             )
         else:
             result = await self._client.audio.transcriptions.create(
-                file=file_arg,
-                model=self._model,
+                file=file_arg, model=self._model
             )
         if isinstance(result, str):
             return result

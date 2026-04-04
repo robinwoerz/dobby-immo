@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-import logging
-
 from openai import AsyncOpenAI
-
-logger = logging.getLogger(__name__)
 
 DOBBY_TTS_INSTRUCTIONS = (
     "Speak as Dobby the free house-elf: high-pitched, enthusiastic, slightly squeaky "
@@ -15,7 +11,7 @@ DOBBY_TTS_INSTRUCTIONS = (
 )
 
 
-class OpenAISpeechRepository:
+class OpenAISpeechService:
     """Synthesize speech via OpenAI ``/v1/audio/speech``."""
 
     def __init__(

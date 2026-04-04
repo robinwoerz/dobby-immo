@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     telegram_bot_token: str
-    telegram_bot_name: str
     telegram_allowed_user_ids: list[int] = []
     openai_api_key: str
+    openai_chat_model: str = "gpt-5-mini"
     openai_transcription_model: str = "gpt-4o-mini-transcribe"
     openai_transcription_prompt: str | None = None
     openai_tts_model: str = "gpt-4o-mini-tts"

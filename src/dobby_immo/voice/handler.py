@@ -8,15 +8,13 @@ from typing import TYPE_CHECKING
 
 from openai import OpenAIError
 
+from dobby_immo.handlers import send_agent_reply
+from dobby_immo.protocols import get_services
 from dobby_immo.voice.audio_convert import AudioConversionError
 
 if TYPE_CHECKING:
     from telegram import Update, Voice
     from telegram.ext import ContextTypes
-
-    from dobby_immo.agent import DobbyAgent
-    from dobby_immo.voice.speech import OpenAISpeechRepository
-    from dobby_immo.voice.transcription import OpenAITranscriptionRepository
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +73,7 @@ async def handle_voice(
 
     voice = update.message.voice
     chat_id = update.message.chat_id
-    agent: DobbyAgent = context.bot_data["agent"]
-    transcription: OpenAITranscriptionRepository = context.bot_data["transcription"]
+    services = get_services(context.bot_data)
 
     prepared = await _prepare_voice_audio(context, voice, chat_id)
     if isinstance(prepared, str):
@@ -84,7 +81,7 @@ async def handle_voice(
         return
 
     try:
-        transcript = await transcription.transcribe(prepared.audio, prepared.filename)
+        transcript = await services.transcription.transcribe(prepared.audio, prepared.filename)
     except AudioConversionError:
         logger.exception("Voice conversion failed for chat %s", chat_id)
         await update.message.reply_text(
@@ -108,12 +105,12 @@ async def handle_voice(
         return
 
     logger.info("Voice transcript for chat %s: %s", chat_id, text[:500])
-    reply = await agent.reply(chat_id, text)
-
-    speech: OpenAISpeechRepository = context.bot_data["speech"]
     try:
-        audio_reply = await speech.synthesize(reply)
-        await update.message.reply_voice(voice=audio_reply)
+        reply = await services.agent.reply(chat_id, text)
     except OpenAIError:
-        logger.exception("TTS failed for chat %s; falling back to text", chat_id)
-        await update.message.reply_text(reply)
+        logger.exception("LLM reply failed for chat %s", chat_id)
+        await update.message.reply_text(
+            "Dobby's Magie ist gerade gestoert — bitte spaeter noch einmal versuchen!"
+        )
+        return
+    await send_agent_reply(update.message, services.speech, reply)

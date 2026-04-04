@@ -6,12 +6,9 @@ from telegram.ext import Application, MessageHandler, filters
 
 from dobby_immo.agent import DobbyAgent
 from dobby_immo.handlers import handle_message, send_periodic_message
+from dobby_immo.protocols import SERVICES_KEY, Services
 from dobby_immo.settings import Settings
-from dobby_immo.voice import (
-    OpenAISpeechRepository,
-    OpenAITranscriptionRepository,
-    handle_voice,
-)
+from dobby_immo.voice import OpenAISpeechService, OpenAITranscriptionService, handle_voice
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +23,20 @@ def create_app(settings: Settings) -> Application:  # type: ignore[type-arg]
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, handle_message))
     app.add_handler(MessageHandler(filters.VOICE & user_filter, handle_voice))
 
-    app.bot_data["allowed_user_ids"] = settings.telegram_allowed_user_ids
-    app.bot_data["agent"] = DobbyAgent(api_key=settings.openai_api_key)
-    app.bot_data["transcription"] = OpenAITranscriptionRepository(
-        api_key=settings.openai_api_key,
-        model=settings.openai_transcription_model,
-        prompt=settings.openai_transcription_prompt,
-    )
-    app.bot_data["speech"] = OpenAISpeechRepository(
-        api_key=settings.openai_api_key,
-        model=settings.openai_tts_model,
-        voice=settings.openai_tts_voice,
-        speed=settings.openai_tts_speed,
+    app.bot_data[SERVICES_KEY] = Services(
+        agent=DobbyAgent(api_key=settings.openai_api_key, model=settings.openai_chat_model),
+        transcription=OpenAITranscriptionService(
+            api_key=settings.openai_api_key,
+            model=settings.openai_transcription_model,
+            prompt=settings.openai_transcription_prompt,
+        ),
+        speech=OpenAISpeechService(
+            api_key=settings.openai_api_key,
+            model=settings.openai_tts_model,
+            voice=settings.openai_tts_voice,
+            speed=settings.openai_tts_speed,
+        ),
+        allowed_user_ids=settings.telegram_allowed_user_ids,
     )
 
     job_queue = app.job_queue

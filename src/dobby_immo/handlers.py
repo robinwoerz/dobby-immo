@@ -5,13 +5,33 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from openai import OpenAIError
+
+from dobby_immo.protocols import AgentReply, get_services
+
 if TYPE_CHECKING:
-    from telegram import Update
+    from telegram import Message, Update
     from telegram.ext import ContextTypes
 
-    from dobby_immo.agent import DobbyAgent
+    from dobby_immo.protocols import SpeechService
 
 logger = logging.getLogger(__name__)
+
+
+async def send_agent_reply(
+    message: Message,
+    speech: SpeechService,
+    reply: AgentReply,
+) -> None:
+    """Deliver an ``AgentReply`` as voice or text message."""
+    if reply.use_voice:
+        try:
+            audio = await speech.synthesize(reply.text)
+            await message.reply_voice(voice=audio)
+            return
+        except OpenAIError:
+            logger.exception("TTS failed; falling back to text")
+    await message.reply_text(reply.text)
 
 
 async def handle_message(
@@ -22,16 +42,23 @@ async def handle_message(
     if update.message is None or update.message.text is None:
         return
 
-    agent: DobbyAgent = context.bot_data["agent"]
+    services = get_services(context.bot_data)
     chat_id = update.message.chat_id
 
     logger.info("Received: %s", update.message.text)
-    reply = await agent.reply(chat_id, update.message.text)
-    await update.message.reply_text(reply)
+    try:
+        reply = await services.agent.reply(chat_id, update.message.text)
+    except OpenAIError:
+        logger.exception("LLM reply failed for chat %s", chat_id)
+        await update.message.reply_text(
+            "Dobby's Magie ist gerade gestoert — bitte spaeter noch einmal versuchen!"
+        )
+        return
+    await send_agent_reply(update.message, services.speech, reply)
 
 
 async def send_periodic_message(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a scheduled message to all allowed users."""
-    user_ids: list[int] = context.bot_data["allowed_user_ids"]
-    for user_id in user_ids:
+    services = get_services(context.bot_data)
+    for user_id in services.allowed_user_ids:
         await context.bot.send_message(chat_id=user_id, text="Dobby meldet sich!")

@@ -4,7 +4,7 @@ Immobilien-Management.
 
 ## Setup
 
-Voice memos are transcribed with the OpenAI Audio API. If the API rejects Telegram’s OGG/Opus file, the bot runs **ffmpeg** once to convert to WAV — install ffmpeg on the host (e.g. `brew install ffmpeg` on macOS).
+Voice memos are transcribed with the OpenAI Audio API. If the API rejects Telegram's OGG/Opus file, the bot runs **ffmpeg** once to convert to WAV — install ffmpeg on the host (e.g. `brew install ffmpeg` on macOS).
 
 ```bash
 # Install uv (if not installed)
@@ -25,16 +25,4 @@ make lint        # Ruff linter
 make format      # Auto-format code
 make test        # Run tests
 make typecheck   # mypy
-```
-
-## Project Structure
-
-```
-src/
-  dobby_immo/       # Application code
-    __init__.py
-    main.py
-tests/              # Test suite
-  conftest.py
-  test_main.py
 ```
