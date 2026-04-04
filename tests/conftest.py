@@ -34,7 +34,6 @@ def services(agent, transcription, speech):
         agent=agent,
         transcription=transcription,
         speech=speech,
-        allowed_user_ids=[111, 222],
     )
 
 
@@ -43,7 +42,6 @@ def context(services):
     ctx = MagicMock()
     ctx.bot_data = {SERVICES_KEY: services}
     ctx.bot.get_file = AsyncMock()
-    ctx.bot.send_message = AsyncMock()
     return ctx
 
 

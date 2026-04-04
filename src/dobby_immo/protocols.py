@@ -47,7 +47,6 @@ class Services:
     agent: Agent
     transcription: TranscriptionService
     speech: SpeechService
-    allowed_user_ids: list[int]
 
 
 def get_services(context_bot_data: dict[str, object]) -> Services:

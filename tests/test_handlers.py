@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from dobby_immo.handlers import handle_message, send_periodic_message
+from dobby_immo.handlers import handle_message
 from dobby_immo.protocols import AgentReply
 
 
@@ -38,12 +38,3 @@ async def test_handle_message_ignores_empty_update(context):
     update.message = None
 
     await handle_message(update, context)
-
-
-@pytest.mark.asyncio
-async def test_send_periodic_message(context):
-    await send_periodic_message(context)
-
-    assert context.bot.send_message.call_count == 2
-    context.bot.send_message.assert_any_call(chat_id=111, text="Dobby meldet sich!")
-    context.bot.send_message.assert_any_call(chat_id=222, text="Dobby meldet sich!")

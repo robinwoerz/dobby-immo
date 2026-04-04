@@ -55,10 +55,3 @@ async def handle_message(
         )
         return
     await send_agent_reply(update.message, services.speech, reply)
-
-
-async def send_periodic_message(context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a scheduled message to all allowed users."""
-    services = get_services(context.bot_data)
-    for user_id in services.allowed_user_ids:
-        await context.bot.send_message(chat_id=user_id, text="Dobby meldet sich!")

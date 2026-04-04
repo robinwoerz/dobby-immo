@@ -6,7 +6,7 @@ from pathlib import Path
 from telegram.ext import Application, MessageHandler, filters
 
 from dobby_immo.agent import DobbyAgent
-from dobby_immo.handlers import handle_message, send_periodic_message
+from dobby_immo.handlers import handle_message
 from dobby_immo.protocols import SERVICES_KEY, Services
 from dobby_immo.settings import Settings
 from dobby_immo.voice import OpenAISpeechService, OpenAITranscriptionService, handle_voice
@@ -16,6 +16,10 @@ logger = logging.getLogger(__name__)
 
 def create_app(settings: Settings) -> Application:  # type: ignore[type-arg]
     """Build and configure the Telegram bot application."""
+    if not settings.telegram_allowed_user_ids:
+        msg = "TELEGRAM_ALLOWED_USER_IDS is empty — refusing to start without an allowlist."
+        raise SystemExit(msg)
+
     app: Application = (  # type: ignore[type-arg]
         Application.builder().token(settings.telegram_bot_token).build()
     )
@@ -41,12 +45,7 @@ def create_app(settings: Settings) -> Application:  # type: ignore[type-arg]
             voice=settings.openai_tts_voice,
             speed=settings.openai_tts_speed,
         ),
-        allowed_user_ids=settings.telegram_allowed_user_ids,
     )
-
-    job_queue = app.job_queue
-    if job_queue is not None:
-        job_queue.run_repeating(send_periodic_message, interval=20, first=5)
 
     logger.info(
         "Allowlist active — %d user(s) permitted",
