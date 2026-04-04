@@ -12,3 +12,5 @@ class Settings(BaseSettings):
     telegram_bot_name: str
     telegram_allowed_user_ids: list[int] = []
     openai_api_key: str
+    openai_transcription_model: str = "gpt-4o-mini-transcribe"
+    openai_transcription_prompt: str | None = None

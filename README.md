@@ -4,6 +4,8 @@ Immobilien-Management.
 
 ## Setup
 
+Voice memos are transcribed with the OpenAI Audio API. If the API rejects Telegram’s OGG/Opus file, the bot runs **ffmpeg** once to convert to WAV — install ffmpeg on the host (e.g. `brew install ffmpeg` on macOS).
+
 ```bash
 # Install uv (if not installed)
 curl -LsSf https://astral.sh/uv/install.sh | sh

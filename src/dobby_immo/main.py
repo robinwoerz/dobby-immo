@@ -17,6 +17,8 @@ def main() -> None:
         settings.telegram_bot_token,
         settings.telegram_allowed_user_ids,
         settings.openai_api_key,
+        openai_transcription_model=settings.openai_transcription_model,
+        openai_transcription_prompt=settings.openai_transcription_prompt,
     )
     app.run_polling()
 

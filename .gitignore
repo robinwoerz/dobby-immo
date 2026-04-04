@@ -17,6 +17,7 @@ venv/
 *.swp
 *.swo
 *~
+.cursorignore
 
 # Testing / Coverage
 .coverage

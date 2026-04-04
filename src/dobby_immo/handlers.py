@@ -18,7 +18,7 @@ async def handle_message(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ) -> None:
-    """Forward incoming message to the LLM agent and reply with its response."""
+    """Forward incoming text message to the LLM agent and reply."""
     if update.message is None or update.message.text is None:
         return
 
