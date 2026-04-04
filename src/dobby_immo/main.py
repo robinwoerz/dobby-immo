@@ -2,8 +2,8 @@
 
 import logging
 
-from dobby_immo.bot import create_app
 from dobby_immo.settings import Settings
+from dobby_immo.telegram import create_app
 
 
 def main() -> None:

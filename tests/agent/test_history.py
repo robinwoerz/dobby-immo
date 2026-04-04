@@ -1,6 +1,6 @@
 """Tests for the rolling-window chat history."""
 
-from dobby_immo.history import ChatHistory
+from dobby_immo.agent.history import ChatHistory
 
 
 def test_append_and_get():

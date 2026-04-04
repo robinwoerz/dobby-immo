@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from dobby_immo.tools import get_tool, get_tool_schemas
+from dobby_immo.agent.tools import get_tool, get_tool_schemas
 
 
 def test_speak_reply_registered():

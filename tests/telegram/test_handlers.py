@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from dobby_immo.handlers import handle_message
 from dobby_immo.protocols import AgentReply
+from dobby_immo.telegram.handlers import handle_message
 
 
 @pytest.mark.asyncio

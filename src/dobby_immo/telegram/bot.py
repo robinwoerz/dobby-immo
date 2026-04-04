@@ -3,13 +3,12 @@
 import logging
 from pathlib import Path
 
-from telegram.ext import Application, MessageHandler, filters
-
 from dobby_immo.agent import DobbyAgent
-from dobby_immo.handlers import handle_message
 from dobby_immo.protocols import SERVICES_KEY, Services
 from dobby_immo.settings import Settings
+from dobby_immo.telegram.handlers import handle_message
 from dobby_immo.voice import OpenAISpeechService, OpenAITranscriptionService, handle_voice
+from telegram.ext import Application, MessageHandler, filters
 
 logger = logging.getLogger(__name__)
 

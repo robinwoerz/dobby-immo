@@ -10,10 +10,9 @@ from openai import OpenAIError
 from dobby_immo.protocols import AgentReply, get_services
 
 if TYPE_CHECKING:
+    from dobby_immo.protocols import SpeechService
     from telegram import Message, Update
     from telegram.ext import ContextTypes
-
-    from dobby_immo.protocols import SpeechService
 
 logger = logging.getLogger(__name__)
 

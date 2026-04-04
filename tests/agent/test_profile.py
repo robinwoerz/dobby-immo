@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dobby_immo.profile import _DEFAULT_TEMPLATE, ProfileStore
+from dobby_immo.agent.profile import _DEFAULT_TEMPLATE, ProfileStore
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 
 from openai import OpenAIError
 
-from dobby_immo.handlers import send_agent_reply
 from dobby_immo.protocols import get_services
+from dobby_immo.telegram.handlers import send_agent_reply
 from dobby_immo.voice.audio_convert import AudioConversionError
 
 if TYPE_CHECKING:
