@@ -17,6 +17,14 @@ make install
 uv run pre-commit install
 ```
 
+Copy `.env.example` to `.env` and fill in the required values. The bot **will not start** without at least one allowed user ID:
+
+```bash
+TELEGRAM_BOT_TOKEN=your-bot-token
+OPENAI_API_KEY=sk-your-key
+TELEGRAM_ALLOWED_USER_IDS=[123456789]  # your Telegram user ID(s)
+```
+
 ## Long-term Memory
 
 Dobby stores the apartment search profile in `.dobby/apartment_profile.md`. This file is created automatically on first use and is gitignored.
